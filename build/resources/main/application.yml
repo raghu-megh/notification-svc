@@ -1,0 +1,24 @@
+#server:
+#  port: 8081
+#  servlet:
+#    context-path: '/notifications-svc'
+#
+#spring:
+#  datasource:
+#  url: jdbc:mysql://localhost:3306/notifications_db
+#  username: root
+#  password: Srinivas@047
+#  driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#  jpa:
+#    hibernate.ddl-auto: update
+#    generate-ddl: false
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL5Dialect
+#
+##  hibernate:
+##  ddl-auto: update
+#
+#
