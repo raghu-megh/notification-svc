@@ -18,4 +18,8 @@ public class RecordingService {
         return repository.findByDomainIdAndRecordingId(domainId, recordingId);
     }
 
+    public Recording findByDomainId(String domainId) {
+        return repository.findByDomainId(domainId);
+    }
+
 }

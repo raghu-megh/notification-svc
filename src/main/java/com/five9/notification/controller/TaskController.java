@@ -1,11 +1,16 @@
 package com.five9.notification.controller;
 
 
+import com.five9.notification.EventType;
+import com.five9.notification.RecordingUploadEvent;
+import com.five9.notification.entity.Recording;
+import com.five9.notification.service.RecordingService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
 
 
 @Slf4j
@@ -22,40 +29,37 @@ import java.sql.*;
 @RequestMapping("/v1/tasks")
 public class TaskController {
 
+    @Autowired
+    RecordingService recordingService;
+
     @PostMapping("/submit")
     public ResponseEntity<String> submit(@RequestBody String body) throws Exception {
         // check db for success of this recordingId + domainId
         // if no success then fire a notification
-        JsonObject convertedObject = new Gson().fromJson(body, JsonObject.class);
-        String recordingId = String.valueOf(convertedObject.get("recordingId")).replaceAll("^\"|\"$", "");
-        String domainId = String.valueOf(convertedObject.get("domainId")).replaceAll("^\"|\"$", "");
-        int successVal = 1;
-//
-        if (body.contains("ERROR")) {
+        RecordingUploadEvent event = new Gson().fromJson(body, RecordingUploadEvent.class);
 
+        if (event.getEventType() == EventType.valueOf("ERROR")) {
             printPayload(body);
 
-            String sql = "SELECT succeeded from recordings r where r.recording_id = ? and r.succeeded = ?";
-            PreparedStatement RecordingUploadTimeout_SqlStmt = prepareQuery(sql);
-            RecordingUploadTimeout_SqlStmt.setString(1, recordingId);
-            RecordingUploadTimeout_SqlStmt.setInt(2, successVal);
-
-            ResultSet rs = RecordingUploadTimeout_SqlStmt.executeQuery();
-            if (rs.next() == true) {log.info("Received Success Event for the recording");}
+            Recording Records_exists = recordingService.findByDomainIdAndRecordingId(event.getDomainId(), event.getRecordingId());
+            if (Records_exists.getSucceeded() == 1) {log.info("Received Success Event for the recording");}
             else {log.info("Did not Receive Success Event for the recording");}
         }
-        else if (body.contains("UNKNOWN")) {
+        else if (event.getEventType() == EventType.valueOf("UNKNOWN")) {
 
             printPayload(body);
 
-            String sql = "SELECT succeeded from recordings where domain_id = ? and succeeded = ? and queued_timestamp is NOT NULL";
-            PreparedStatement StorageLocationUnreachable_SqlStmt = prepareQuery(sql);
-            StorageLocationUnreachable_SqlStmt.setString(1, domainId);
-            StorageLocationUnreachable_SqlStmt.setInt(2, successVal);
+            List<Recording> Records_exists = Arrays.asList(recordingService.findByDomainId(event.getDomainId()));
 
-            ResultSet rs1 = StorageLocationUnreachable_SqlStmt.executeQuery();
-            if (rs1.next() == true) {log.info("Received Success Event for at least 1 domain");}
-            else {log.info("Did not Receive Success Event at least 1 domain");}
+            int count = 0;
+            for(int i = 0; i < Records_exists.size(); i++){
+                if(Records_exists.get(i).getSucceeded() == 1){
+                    count += 1;
+                }
+            }
+
+            if (count > 0) {log.info("Received Success Event for at least 1 domain");}
+            else {log.info("Did not Receive Success Event for  at least 1 domain");}
         }
 
         return ResponseEntity.ok().build();
@@ -65,20 +69,5 @@ public class TaskController {
         String output;
         output = String.format("Received task %s", body);
         System.out.println(output);
-    }
-
-    @Value("${spring.datasource.url}")
-    private String url;
-
-    @Value("${spring.datasource.username}")
-    private String user;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-    public PreparedStatement prepareQuery(String sql) throws SQLException {
-        Connection conn = DriverManager.getConnection(url, user, password);
-        PreparedStatement myStmt;
-        myStmt = conn.prepareStatement(sql);
-        return myStmt;
     }
 }
