@@ -1,0 +1,33 @@
+server:
+  port: 9091
+  servlet:
+    context-path: '/notifications-svc'
+
+spring:
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create
+
+  cloud:
+    gcp:
+      sql:
+        instance-connection-name: notifications-project-358320:us-central1:my-instance-2
+        database-name: notifications-db
+
+  datasource:
+
+    username: root
+    password: xUg>"269ijspr>.}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://google/notifications-db?cloudSqlInstance=notifications-project-358320:us-central1:my-instance-2&socketFactory=com.google.cloud.sql.mysql.SocketFactory&user=root&password=xUg>"269ijspr>.}"
+
+
+  main:
+    allow-bean-definition-overriding: true
+
+  env_variables:
+    GOOGLE_APPLICATION_CREDENTIALS: '/Users/saisrinivaschetti/.config/gcloud/application_default_credentials.json'
+
+
