@@ -25,8 +25,8 @@ public class RecordingService {
         return repository.findByRecordingId(recordingId);
     }
 
-    public Optional<List<Recording>> findByQueuedTimestampBetweenAndDomainId(Timestamp start, Timestamp end, String domainId ) {
-        return repository.findByQueuedTimestampBetweenAndDomainId(start, end, domainId);
+    public Optional<List<Recording>> findByQueuedTimestampBetweenAndDomainIdAndSucceeded(Timestamp start, Timestamp end, String domainId, boolean succeeded) {
+        return repository.findByQueuedTimestampBetweenAndDomainIdAndSucceeded(start, end, domainId, succeeded);
     }
 
 }

@@ -19,5 +19,5 @@ public interface RecordingRepository extends CrudRepository<Recording,String> {
 
     Optional<Recording> findByRecordingId(String recordingId);
 
-    Optional<List<Recording>> findByQueuedTimestampBetweenAndDomainId(Timestamp start, Timestamp end, String domainId);
+    Optional<List<Recording>> findByQueuedTimestampBetweenAndDomainIdAndSucceeded(Timestamp start, Timestamp end, String domainId, boolean succeeded);
 }

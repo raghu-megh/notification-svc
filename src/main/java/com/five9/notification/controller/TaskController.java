@@ -37,32 +37,20 @@ public class TaskController {
                     queuedTime = getRecording.get().getQueuedTimestamp();
                 }else {log.info("No Records found");}
                 Timestamp start = new java.sql.Timestamp(queuedTime.getTime() - 2 * 60 * 1000);//2mins
-                //change query
-                Optional<List<Recording>> domainExists = recordingService.findByQueuedTimestampBetweenAndDomainId(start,queuedTime,event.getDomainId());
-                printEventDetails(event);
-                if(domainExists.isPresent()){
-                    int count = 0;
-                    for(int i = 0; i < domainExists.get().size(); i++){
-                        if(domainExists.get().get(i).isSucceeded()){count += 1;}}
-                    if (count > 0) {log.info("Received Success Event for at least 1 domain(domain id)");}
-                    else {log.info("Did not Receive Success Event for  at least 1 domain");}
-                }else {log.info("Did not Receive Success Event for  at least 1 domain");}
+                Optional<List<Recording>> domainExists = recordingService.findByQueuedTimestampBetweenAndDomainIdAndSucceeded(start,queuedTime,event.getDomainId(), true);
+                log.info("Received event Type {}", event.getEventType());
+                if(domainExists.isPresent() && domainExists.get().size() > 0){
+                    log.info("Received Success Event for at least 1 recording for the domain: {}", event.getDomainId());}
+                else {log.info("Did not Receive Success Event for at least 1 recording for the domain: {}", event.getDomainId());}
                 break;
             case CHECK_STATUS:
                 Optional<Recording> recordingsExists = recordingService.findByDomainIdAndRecordingId(event.getDomainId(),event.getRecordingId());
-                printEventDetails(event);
-                if(recordingsExists.isPresent()){
-                    if (recordingsExists.get().isSucceeded()) {log.info("Received Success Event for the recording");}
-                    else {log.info("Did not Receive Success Event for the recording");}
-                }else {log.info("No Records found");}
+                log.info("Received event Type {}", event.getEventType());
+                if(recordingsExists.isPresent() && recordingsExists.get().isSucceeded()){
+                    log.info("Received Success Event for the recording: {}", event.getRecordingId());}
+                   else {log.info("Did not Receive Success Event for the recording: {}", event.getRecordingId());}
                 break;
         }
         return ResponseEntity.ok().build();
-    }
-
-    public void printEventDetails(RecordingUploadEvent event){
-        log.info("Received event Type {}", event.getEventType());
-        log.info("Recording ID: {}", event.getRecordingId());
-        log.info("Domain ID:  {}", event.getDomainId());
     }
 }
