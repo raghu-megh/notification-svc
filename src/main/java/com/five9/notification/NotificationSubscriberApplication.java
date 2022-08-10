@@ -4,14 +4,16 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.five9.notification.entity.Recording;
+import com.five9.notification.repository.RecordingRepository;
 import com.five9.notification.service.RecordingService;
 import com.google.cloud.spring.autoconfigure.pubsub.GcpPubSubAutoConfiguration;
 import com.google.cloud.tasks.v2beta3.*;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +42,11 @@ import org.springframework.messaging.handler.annotation.Header;
 @Import({GcpPubSubAutoConfiguration.class})
 @SpringBootApplication
 public class NotificationSubscriberApplication {
-
     @Autowired
     RecordingService recordingService;
 
+    @Autowired
+    RecordingRepository repository;
     public static void main(String[] args) {
         SpringApplication.run(NotificationSubscriberApplication.class, args);
     }
@@ -84,18 +87,14 @@ public class NotificationSubscriberApplication {
         RecordingUploadEvent event = new Gson().fromJson(payload, RecordingUploadEvent.class);
         log.info("Received event Type {} ", event.getEventType());
 
-//        event for RecordingUploadTimeout and StorageLocationUnreachable
-        JsonObject RecordingUploadTimeout_event = new Gson().fromJson(payload, JsonObject.class);;
-        RecordingUploadTimeout_event.addProperty("eventType", "ERROR");
-
-        JsonObject StorageLocationUnreachable_event = new Gson().fromJson(payload, JsonObject.class);;
-        StorageLocationUnreachable_event.addProperty("eventType", "UNKNOWN");
+        RecordingUploadEvent checkUploadEvent = event.withEventType(EventType.CHECK_UPLOAD_LINK);
+        RecordingUploadEvent checkStatusEvent = event.withEventType(EventType.CHECK_STATUS);
 
         switch (event.getEventType()) {
             case START:
                 insert(event);
-                createDelayedTask(RecordingUploadTimeout_event, 30);
-                createDelayedTask(StorageLocationUnreachable_event, 15);
+                createDelayedTask(checkStatusEvent, 30);
+                createDelayedTask(checkUploadEvent, 15);
                 break;
             case SUCCESS:
                 update(event);
@@ -103,18 +102,28 @@ public class NotificationSubscriberApplication {
             default:
         }
     }
-
     private void update(RecordingUploadEvent event) {
-        Recording recording = recordingService.findByDomainIdAndRecordingId(event.getDomainId(), event.getRecordingId());
+        Optional<Recording> recording = recordingService.findByDomainIdAndRecordingId(event.getDomainId(), event.getRecordingId());
+        if (recording.isPresent()) {
+            recording.get().setEndTimestamp(new java.sql.Timestamp(new Date().getTime()));
+            recording.get().setSucceeded(true);
+            recordingService.saveRecording(recording.get());
+        } else {log.info("No Records found");}
+    }
 
-        recording.setEndTimestamp(Instant.now().toString());
-        recording.setStartTimestamp(Instant.now().toString());
-        recording.setAttempts("2");
-        recording.setSucceeded(1);
+    private void insert(RecordingUploadEvent event) {
+        Recording recording = new Recording();
+        recording.setRecordingId(event.getRecordingId());
+        recording.setDestination(event.getDestination());
+        recording.setDomainId(event.getDomainId());
+        recording.setQueuedTimestamp(new java.sql.Timestamp(new Date().getTime()));
+        recording.setRecordingFilename(event.getRecordingFilename());
+        recording.setSucceeded(false);
+
         recordingService.saveRecording(recording);
     }
 
-    private void createDelayedTask(JsonObject event, int delay_time) {
+    private void createDelayedTask(RecordingUploadEvent event, int delay_time) {
         try (CloudTasksClient client = CloudTasksClient.create()) {
 
             String projectId = "notifications-project-358320";
@@ -132,8 +141,7 @@ public class NotificationSubscriberApplication {
                             .setHttpRequest(
                                     HttpRequest.newBuilder()
                                             .setBody(ByteString.copyFrom(new Gson().toJson(event), Charset.defaultCharset()))
-                                            .setUrl("https://a35c-12-222-13-2.ngrok.io/notifications-svc/v1/tasks/submit")
-//                                            .setUrl("https://pubsub.googleapis.com/v1/projects/notifications-project-358320/topics/notifications.events:publish")
+                                            .setUrl("https://7d44-50-220-235-244.ngrok.io/notifications-svc/v1/tasks/submit")
                                             .setHttpMethod(HttpMethod.POST)
                                             .build());
 
@@ -144,22 +152,10 @@ public class NotificationSubscriberApplication {
 
             // Send create task request.
             Task task = client.createTask(queuePath, taskBuilder.build());
-//            log.info("Task {} created for event {} ", task.getName(), event.getRecordingId());
+            log.info("Task {} created for event {} ", task.getName(), event.getRecordingId());
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    private void insert(RecordingUploadEvent event) {
-        Recording recording = new Recording();
-        recording.setRecordingId(event.getRecordingId());
-        recording.setDestination(event.getDestination());
-        recording.setDomainId(event.getDomainId());
-        recording.setQueuedTimestamp(Instant.now().toString());
-        recording.setRecordingFilename(event.getRecordingFilename());
-
-        recordingService.saveRecording(recording);
     }
 
     // Create an input binder to receive messages from `topic-two` using a Consumer bean.

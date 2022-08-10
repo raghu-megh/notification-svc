@@ -5,6 +5,10 @@ import com.five9.notification.repository.RecordingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class RecordingService {
     @Autowired
@@ -14,12 +18,15 @@ public class RecordingService {
         return repository.save(recording);
     }
 
-    public Recording findByDomainIdAndRecordingId(String domainId, String recordingId) {
+    public Optional<Recording> findByDomainIdAndRecordingId(String domainId, String recordingId) {
         return repository.findByDomainIdAndRecordingId(domainId, recordingId);
     }
+    public Optional<Recording> findByRecordingId(String recordingId) {
+        return repository.findByRecordingId(recordingId);
+    }
 
-    public Recording findByDomainId(String domainId) {
-        return repository.findByDomainId(domainId);
+    public Optional<List<Recording>> findByQueuedTimestampBetweenAndDomainId(Timestamp start, Timestamp end, String domainId ) {
+        return repository.findByQueuedTimestampBetweenAndDomainId(start, end, domainId);
     }
 
 }

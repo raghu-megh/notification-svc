@@ -5,6 +5,8 @@ import com.google.errorprone.annotations.Immutable;
 import lombok.*;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.TimerTask;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +15,7 @@ import javax.persistence.*;
 @Immutable
 @Builder
 @Getter
-@Table(name = "Recordings")
+@Table(name = "Recording")
 public class Recording {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,17 +34,17 @@ public class Recording {
     String recordingFilename;
 
     @JsonProperty("queuedTimestamp")
-    String queuedTimestamp;
+    Timestamp queuedTimestamp;
 
     @JsonProperty("attempts")
     String attempts;
 
     @JsonProperty("startTimestamp")
-    String startTimestamp;
+    Timestamp startTimestamp;
 
     @JsonProperty("endTimestamp")
-    String endTimestamp;
+    Timestamp endTimestamp;
 
     @JsonProperty("succeeded")
-    int succeeded;
+    boolean succeeded;
 }

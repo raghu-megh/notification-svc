@@ -4,5 +4,7 @@ public enum EventType {
     START,
     SUCCESS,
     ERROR,
-    UNKNOWN;
+    UNKNOWN,
+    CHECK_STATUS,
+    CHECK_UPLOAD_LINK;
 }
