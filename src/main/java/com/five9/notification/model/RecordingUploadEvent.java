@@ -1,4 +1,4 @@
-package com.five9.notification;
+package com.five9.notification.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.With;
 @Getter
 public class RecordingUploadEvent {
 
-    //Order matters
+    // Order matters
     private String recordingId;
     private final String domainId;
     private final String recordingFilename;

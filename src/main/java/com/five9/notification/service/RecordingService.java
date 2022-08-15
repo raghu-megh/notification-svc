@@ -2,31 +2,31 @@ package com.five9.notification.service;
 
 import com.five9.notification.entity.Recording;
 import com.five9.notification.repository.RecordingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class RecordingService {
-    @Autowired
-    private RecordingRepository repository;
+import lombok.AllArgsConstructor;
 
-    public Recording saveRecording(Recording recording) {
-        return repository.save(recording);
+import org.springframework.stereotype.Service;
+
+@Service
+@AllArgsConstructor
+public class RecordingService {
+
+    private final RecordingRepository repository;
+
+    public void save(Recording recording) {
+        repository.save(recording);
     }
 
     public Optional<Recording> findByDomainIdAndRecordingId(String domainId, String recordingId) {
         return repository.findByDomainIdAndRecordingId(domainId, recordingId);
     }
-    public Optional<Recording> findByRecordingId(String recordingId) {
-        return repository.findByRecordingId(recordingId);
-    }
 
-    public Optional<List<Recording>> findByQueuedTimestampBetweenAndDomainIdAndSucceeded(Timestamp start, Timestamp end, String domainId, boolean succeeded) {
-        return repository.findByQueuedTimestampBetweenAndDomainIdAndSucceeded(start, end, domainId, succeeded);
+    public Optional<List<Recording>> findRecordingsUsing(String domainId, Timestamp start, Timestamp end,
+        boolean succeeded) {
+        return Optional.ofNullable(repository.findRecordingsUsing(domainId, start, end, succeeded));
     }
-
 }

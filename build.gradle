@@ -28,11 +28,11 @@ apply plugin: 'com.five9.gradle.f9platformplugin'
 
 repositories {
     maven { url ARTIFACTORY_URL }
-    mavenCentral()
 }
 
 f9Boms {
     five9Shim = "$SHIM_PLATFORM_BOM"
+    five9Spring = "$SPRING_PLATFORM_BOM"
 }
 
 configurations {
@@ -42,31 +42,31 @@ configurations {
 }
 
 dependencies {
-    implementation "org.apache.avro:avro:1.9.1"
-    implementation files('libs/connectors-events-SNAPSHOT.jar')
 
+    implementation 'com.five9:pubsub'
     implementation 'com.google.cloud:spring-cloud-gcp-dependencies:3.3.0'
-    implementation 'com.google.cloud:spring-cloud-gcp-starter-pubsub:3.3.0'
-    implementation 'org.springframework.integration:spring-integration-core:5.5.12'
-    implementation 'org.springframework.integration:spring-integration-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.google.cloud:google-cloud-tasks:2.3.4'
+    implementation 'org.springframework.integration:spring-integration-core:5.5.14'
+
+    implementation 'org.springframework.integration:spring-integration-jpa:5.5.14'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.7.2'
+
+    implementation 'com.google.cloud:google-cloud-tasks:2.1.6'
+
+    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-sql-mysql:1.2.8.RELEASE'
     implementation 'com.google.cloud.sql:mysql-socket-factory-connector-j-6:1.2.1'
 
     // f9springWeb()
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    //implementation "org.springframework.boot:spring-boot-starter-security"
 
     implementation 'org.springframework.integration:spring-integration-http'
     implementation 'org.springframework.integration:spring-integration-jpa'
     compileOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'mysql:mysql-connector-java'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
     testImplementation 'com.squareup.okhttp3:okhttp'
 }

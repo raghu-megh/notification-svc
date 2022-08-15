@@ -1,26 +1,26 @@
 package com.five9.notification.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.errorprone.annotations.Immutable;
-import lombok.*;
+import java.sql.Timestamp;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.TimerTask;
+
+import lombok.*;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Immutable
 @Builder
 @Getter
 @Table(name = "Recording")
 public class Recording {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    //    @Id
+    // @Id
     @JsonProperty("domainId")
     private String domainId;
 

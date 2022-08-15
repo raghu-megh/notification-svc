@@ -1,33 +1,52 @@
 server:
-  port: 9091
+  port: 8081
   servlet:
     context-path: '/notifications-svc'
 
+gcp:
+  projectId: notifications-project-358320
+  task:
+    queue:
+      id: delayed-queue-2
+      locationId: us-central1
+  topic:
+    name: notifications.events
+    subscription: notifications.events-sub
+  publish-url: https://pubsub.googleapis.com/v1/projects/${gcp.projectId}/topics/${gcp.topic.name}:publish
+  sa:
+    email: 1075047829638-compute@developer.gserviceaccount.com
+
+events:
+  ingress:
+    topic: notifications.events
+    subscription: notifications.events-sub
+
+recording:
+  check:
+    status:
+      interval:
+        secs: 30
+    upload:
+      link:
+        interval:
+          secs: 15
 spring:
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+  datasource:
+    username: root
+    password: xUg>"269ijspr>.}
+  profiles:
+    active: mysql
 
   cloud:
     gcp:
       sql:
-        instance-connection-name: notifications-project-358320:us-central1:my-instance-2
+        instance-connection-name: ${gcp.projectId}:${gcp.task.queue.locationId}:my-instance-2
         database-name: notifications-db
 
-  datasource:
-
-    username: root
-    password: xUg>"269ijspr>.}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    max-lifetime: 6000000
-    url: jdbc:mysql://google/notifications-db?cloudSqlInstance=notifications-project-358320:us-central1:my-instance-2&socketFactory=com.google.cloud.sql.mysql.SocketFactory&user=root&password=xUg>"269ijspr>.}"
-
-  main:
-    allow-bean-definition-overriding: true
-
-#  env_variables:
-#    GOOGLE_APPLICATION_CREDENTIALS: '/Users/saisrinivaschetti/.config/gcloud/application_default_credentials.json'
-#
+    #url: jdbc:mysql://google/notifications-db?cloudSqlInstance=notifications-project-358320:us-central1:my-instance-2&socketFactory=com.google.cloud.sql.mysql.SocketFactory&user=root&password=xUg>"269ijspr>.}"
 

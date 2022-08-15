@@ -3,7 +3,6 @@ package com.five9.notification.service;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.google.cloud.spring.autoconfigure.pubsub.GcpPubSubAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
@@ -11,8 +10,7 @@ import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+
 
 @Slf4j
 public class NotificationsSubscriber {
