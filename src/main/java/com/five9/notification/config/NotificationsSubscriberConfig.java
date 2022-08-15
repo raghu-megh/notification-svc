@@ -17,15 +17,15 @@ import org.springframework.context.annotation.Configuration;
 public class NotificationsSubscriberConfig {
 
     @Value("${gcp.projectId}")
-    private String PROJECT_ID;
+    private String projectId;
     @Value("${gcp.task.queue.locationId}")
-    private String LOCATION_ID;
+    private String locationId;
     @Value("${gcp.task.queue.id}")
-    private String QUEUE_ID;
+    private String queueId;
     @Value("${recording.check.status.interval.secs}")
-    private long CHECK_STATUS_INTERVAL;
+    private long checkStatusInterval;
     @Value("${recording.check.upload.link.interval.secs}")
-    private long CHECK_UPLOAD_LINK_INTERVAL;
+    private long checkUploadLinkInterval;
     @Value("${gcp.publish-url}")
     private String publishUrl;
     @Value("${gcp.sa.email}")
@@ -33,17 +33,17 @@ public class NotificationsSubscriberConfig {
 
     @Bean
     public String queuePath() {
-        return QueueName.of(PROJECT_ID, LOCATION_ID, QUEUE_ID).toString();
+        return QueueName.of(projectId, locationId, queueId).toString();
     }
 
     @Bean
     public Duration checkStatusInterval() {
-        return Duration.ofSeconds(CHECK_STATUS_INTERVAL);
+        return Duration.ofSeconds(checkStatusInterval);
     }
 
     @Bean
     public Duration checkUploadLinkInterval() {
-        return Duration.ofSeconds(CHECK_UPLOAD_LINK_INTERVAL);
+        return Duration.ofSeconds(checkUploadLinkInterval);
     }
 
     @Bean
