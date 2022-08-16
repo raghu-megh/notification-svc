@@ -18,8 +18,10 @@ gcp:
 
 events:
   ingress:
-    topic: notifications.events
-    subscription: notifications.events-sub
+    events-topic: notifications.events
+    events-subscription: notifications.events-sub
+    deleteRecords-topic: cron-topic
+    deleteRecords-subscription: cron-sub
 
 recording:
   check:
@@ -30,6 +32,11 @@ recording:
       link:
         interval:
           secs: 15
+    delete:
+      records:
+        interval:
+          secs: 3600
+
 spring:
   jpa:
     show-sql: false

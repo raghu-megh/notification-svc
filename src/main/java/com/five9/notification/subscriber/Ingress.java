@@ -31,8 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @EventBusSubscriber(
-                topic = "${events.ingress.topic}",
-                subscription = "${events.ingress.subscription}")
+                topic = "${events.ingress.events-topic}",
+                subscription = "${events.ingress.events-subscription}")
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -70,13 +70,16 @@ public class Ingress implements MessageReceiver<RecordingUploadEvent> {
                                         java.sql.Timestamp queuedTime = recording.getQueuedTimestamp();
                                         java.sql.Timestamp start = new java.sql.Timestamp(
                                                         queuedTime.getTime() - checkUploadLinkInterval.toMillis());
-                                        recordingService.findRecordingsUsing(event.getDomainId(), start, queuedTime,
+
+                                        java.sql.Timestamp end = recording.getEndTimestamp();
+                                        recordingService.findRecordingsUsing(event.getDomainId(), start, end,
                                                         true)
                                                         .ifPresent(recordings -> {
                                                             if (recordings.isEmpty()) {
                                                                 log.info("****NOTIFICATION**** Check upload link for domain {}",
                                                                                 event.getDomainId());
-                                                            }
+                                                            }else{log.info("Received SUCCESS event for the domain {}",
+                                                                    event.getDomainId());}
                                                         });
                                     });
                     break;

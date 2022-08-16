@@ -26,6 +26,7 @@ public class NotificationsSubscriberConfig {
     private long checkStatusInterval;
     @Value("${recording.check.upload.link.interval.secs}")
     private long checkUploadLinkInterval;
+
     @Value("${gcp.publish-url}")
     private String publishUrl;
     @Value("${gcp.sa.email}")
