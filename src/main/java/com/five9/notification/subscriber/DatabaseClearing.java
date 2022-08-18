@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Qualifier;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -22,17 +23,21 @@ import java.util.Date;
 @Service
 @Transactional
 public class DatabaseClearing implements MessageReceiver<JsonObject>{
-
     private final RecordingService recordingService;
-
-
+    private final Duration deleteRecordsInterval;
     @Override
     public void onMessage(JsonObject message, MessageReceiverCallback callback) {
-        log.info("***********Received cron message********** {}", message.get("cron-job"));
+        log.info("***********Received cron job********** {}", message.get("cron-job"));
 
-        java.sql.Timestamp start = new java.sql.Timestamp(
-                new Date().getTime() - 1 * 60 * 60 * 1000);
-
-        recordingService.deleteRecordingsByQueuedTimestampGreaterThanAndSucceeded(start, true);
+        try {
+            java.sql.Timestamp start = new java.sql.Timestamp(
+                    new Date().getTime() - deleteRecordsInterval.toMillis());
+            recordingService.deleteRecordingsByQueuedTimestampLessThanAndSucceeded(start, true);
+            callback.ack();
+        }
+        catch (ObjectOptimisticLockingFailureException e) {
+            log.error("Received {}: {}", e.getMessage(), e);
+            callback.nack();
+        }
     }
 }

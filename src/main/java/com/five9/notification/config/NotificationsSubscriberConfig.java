@@ -27,6 +27,9 @@ public class NotificationsSubscriberConfig {
     @Value("${recording.check.upload.link.interval.secs}")
     private long checkUploadLinkInterval;
 
+    @Value("${recording.check.delete.records.interval.secs}")
+    private long deleteRecordsInterval;
+
     @Value("${gcp.publish-url}")
     private String publishUrl;
     @Value("${gcp.sa.email}")
@@ -45,6 +48,11 @@ public class NotificationsSubscriberConfig {
     @Bean
     public Duration checkUploadLinkInterval() {
         return Duration.ofSeconds(checkUploadLinkInterval);
+    }
+
+    @Bean
+    public Duration deleteRecordsInterval() {
+        return Duration.ofSeconds(deleteRecordsInterval);
     }
 
     @Bean

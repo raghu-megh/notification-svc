@@ -30,8 +30,8 @@ public class RecordingService {
         return Optional.ofNullable(repository.findRecordingsUsing(domainId, start, end, succeeded));
     }
 
-    public Optional<List<Recording>> deleteRecordingsByQueuedTimestampGreaterThanAndSucceeded(Timestamp start, boolean succeeded) {
-         repository.deleteRecordingsByQueuedTimestampGreaterThanAndSucceeded(start, succeeded);
+    public Optional<List<Recording>> deleteRecordingsByQueuedTimestampLessThanAndSucceeded(Timestamp start, boolean succeeded) {
+         repository.deleteRecordingsByQueuedTimestampLessThanAndSucceeded(start, succeeded);
         return null;
     }
 

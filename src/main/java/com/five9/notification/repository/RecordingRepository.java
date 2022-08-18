@@ -21,10 +21,10 @@ public interface RecordingRepository extends JpaRepository<Recording, String> {
     Optional<Recording> findByDomainIdAndRecordingId(String domainId, String recordingId);
 
     @Query(value = "select * from recording r where r.succeeded = :succeeded and r.domain_id = :domainId and " +
-                    "r.queued_timestamp >= :start and r.end_timestamp <= :end", nativeQuery = true)
+                    "r.queued_timestamp >= :start and r.queued_timestamp <= :end", nativeQuery = true)
     List<Recording> findRecordingsUsing(@Param("domainId") String domainId, @Param("start") Timestamp start,
         @Param("end") Timestamp end, @Param("succeeded") boolean succeeded);
 
-    Optional<List<Recording>> deleteRecordingsByQueuedTimestampGreaterThanAndSucceeded(Timestamp start, boolean succeeded);
+    Optional<List<Recording>> deleteRecordingsByQueuedTimestampLessThanAndSucceeded(Timestamp start, boolean succeeded);
 
 }

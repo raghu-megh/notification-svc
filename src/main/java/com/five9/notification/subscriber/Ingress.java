@@ -69,10 +69,9 @@ public class Ingress implements MessageReceiver<RecordingUploadEvent> {
                                     .ifPresent(recording -> {
                                         java.sql.Timestamp queuedTime = recording.getQueuedTimestamp();
                                         java.sql.Timestamp start = new java.sql.Timestamp(
-                                                        queuedTime.getTime() - checkUploadLinkInterval.toMillis());
-
-                                        java.sql.Timestamp end = recording.getEndTimestamp();
-                                        recordingService.findRecordingsUsing(event.getDomainId(), start, end,
+                                                        queuedTime.getTime() - 2 * 60 * 1000);
+//                                        check count
+                                        recordingService.findRecordingsUsing(event.getDomainId(), start, queuedTime,
                                                         true)
                                                         .ifPresent(recordings -> {
                                                             if (recordings.isEmpty()) {
